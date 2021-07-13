@@ -1,0 +1,48 @@
+---
+title: "Vast Mini Challenge 2"
+author: "Jovinka Hartanto"
+date: "7/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      eval = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.retina = 3)
+```
+
+```{r install packages and load library, include=FALSE}
+packages = c('raster', 'sf', 'st',
+             'tmap','mapview', 'clock', 
+             'tidyverse','plotly','lubridate')
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+
+```
+
+## Question 1
+
+```{r import cc data and loyalty card data}
+loyalty_data <- read_csv("MC2/loyalty_data.csv")
+
+loyalty_data$timestamp <- date_time_parse(loyalty_data$timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y")
+
+cc_data <- read_csv("MC2/cc_data.csv")
+cc_data$timestamp_date <- date_time_parse(cc_data$timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y")
+cc_data$timestamp <- date_time_parse(cc_data$timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y %H:%M")
+
+
+```
+
