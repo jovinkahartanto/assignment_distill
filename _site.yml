@@ -10,5 +10,5 @@ navbar:
     - text: "About"
       href: about.html
     - text: "Answer"
-      href: Assignment_Jovinka.html
+      href: assignment - jovinka.html
 output: distill::distill_article
