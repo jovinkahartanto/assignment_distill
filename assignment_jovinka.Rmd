@@ -1,5 +1,5 @@
 ---
-title: "Vast Mini Challenge 2"
+title: "Vast Mini Challenge 2 - Answer"
 author: "Jovinka Hartanto"
 date: "7/13/2021"
 output: html_document
@@ -18,7 +18,7 @@ packages = c('raster', 'sf', 'st',
              'tmap','mapview', 'clock', 
              'tidyverse','plotly','lubridate', 'ggiraph', 'plotly', 
              'DT', 'patchwork',
-             'tidyverse')
+             'tidyverse','ggplot2','data.table')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -36,7 +36,7 @@ By using loyalty and credit card data, we can observe that the top three most vi
 2. Hippokampos
 3. Guy's Gyros
 
-As we can see in the figure below, those three location were visited 
+As we can see in the figure below, the number of daily frequency from credit card data and loyalty data are different. Based on credit card data Katerina's Cafe were most popular in 2014-06-01...
 
 ```{r import cc data and loyalty card data}
 loyalty_data <- read_csv("MC2/loyalty_data.csv")
@@ -44,6 +44,13 @@ loyalty_data <- read_csv("MC2/loyalty_data.csv")
 loyalty_data$timestamp <- date_time_parse(loyalty_data$timestamp,
                                 zone = "",
                                 format = "%m/%d/%Y")
+for(i in 1:nrow(loyalty_data))
+{
+  if(loyalty_data$location[i] %like% "Katerina") 
+  {
+  loyalty_data$location[i] <- str_replace(loyalty_data$location[i],loyalty_data$location[i],"Katerina's Cafe") 
+  }
+}
 
 cc_data <- read_csv("MC2/cc_data.csv")
 
@@ -53,22 +60,57 @@ cc_data$timestamp_date <- date_time_parse(cc_data$timestamp,
 cc_data$timestamp <- date_time_parse(cc_data$timestamp,
                                 zone = "",
                                 format = "%m/%d/%Y %H:%M")
-
-cc_data
+for(i in 1:nrow(cc_data))
+{
+  if(cc_data$location[i] %like% "Katerina") 
+  {
+   cc_data$location[i] <- str_replace(cc_data$location[i],cc_data$location[i],"Katerina's Cafe") 
+  }
+}
 
 
 ```
 
-``` {r Data Vizualisation Loyalty data}
+``` {r cc top 3 daily frequency}
 
+cc_freq <- group_by(cc_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+
+cc_freq_daily <- group_by(cc_data, timestamp_date, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
+
+cc_freq_daily_selected <- cc_freq_daily %>% filter(location %in% top3_place)
+
+top3_vis_cc <- ggplot(cc_freq_daily_selected, aes(fill=as.character(timestamp_date), y=freq, x=location)) + 
+    geom_bar(position="stack", stat="identity") +
+    geom_text(label = cc_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
+    ggtitle("CC data top 3 location")
+
+
+```
+
+```{r loyalty top 3 daily frequency}
 loyalty_freq <- group_by(loyalty_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-loyalty_freq
+loyalty_freq_daily <- group_by(loyalty_data, timestamp, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
+
+loyalty_freq_daily_selected <- loyalty_freq_daily %>% filter(location %in% top3_place)
+
+top3_vis_L <- ggplot(loyalty_freq_daily_selected, aes(fill=as.character(timestamp), y=freq, x=location)) + 
+    geom_bar(position="stack", stat="identity") +
+    geom_text(label = loyalty_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
+    ggtitle("Loyalty data top 3 location")
+
+ggplotly(top3_vis_L)
 
 ```
+
 
 ```{r}
-cc_freq <- group_by(cc_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-cc_freq
+Animals <- c("giraffes", "orangutans", "monkeys")
+SF_Zoo <- c(20, 14, 23)
+LA_Zoo <- c(12, 18, 29)
+data <- data.frame(Animals, SF_Zoo, LA_Zoo)
 
 
 ```
+

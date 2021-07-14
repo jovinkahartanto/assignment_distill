@@ -12,7 +12,7 @@
 <meta name="author" content="Jovinka Hartanto" />
 
 
-<title>Vast Mini Challenge 2</title>
+<title>Vast Mini Challenge 2 - Answer</title>
 
 <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content=""/>
@@ -648,6 +648,13 @@ body {
 <script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\rmarkdown\rmd\h\navigation-1.1\tabsets.js"></script>
 <link href="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\rmarkdown\rmd\h\highlightjs\default.css" rel="stylesheet" />
 <script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\rmarkdown\rmd\h\highlightjs\highlight.js"></script>
+<script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\htmlwidgets\www\htmlwidgets.js"></script>
+<script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\plotly\htmlwidgets\plotly.js"></script>
+<script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\plotly\htmlwidgets\lib\typedarray\typedarray.min.js"></script>
+<link href="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\crosstalk\www\css\crosstalk.css" rel="stylesheet" />
+<script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\crosstalk\www\js\crosstalk.min.js"></script>
+<link href="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\plotly\htmlwidgets\lib\plotlyjs\plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="C:\Users\jovinkahartanto\Documents\R\win-library\4.0\plotly\htmlwidgets\lib\plotlyjs\plotly-latest.min.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -852,7 +859,7 @@ $(document).ready(function () {
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
-<a href="assignment_jovinka.html">About</a>
+<a href="Background.html">Background</a>
 <a href="assignment_jovinka.html">Answer</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
@@ -881,7 +888,7 @@ $(document).ready(function () {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="assignment_jovinka.html">About</a>
+  <a href="Background.html">Background</a>
 </li>
 <li>
   <a href="assignment_jovinka.html">Answer</a>
@@ -895,7 +902,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Vast Mini Challenge 2</h1>
+<h1 class="title toc-ignore">Vast Mini Challenge 2 - Answer</h1>
 <h4 class="author">Jovinka Hartanto</h4>
 <h4 class="date">7/13/2021</h4>
 
@@ -910,12 +917,19 @@ $(document).ready(function () {
 <li>Hippokampos</li>
 <li>Guy’s Gyros</li>
 </ol>
-<p>As we can see in the figure below, those three location were visited</p>
+<p>As we can see in the figure below, the three location were popular in</p>
 <pre class="r"><code>loyalty_data &lt;- read_csv(&quot;MC2/loyalty_data.csv&quot;)
 
 loyalty_data$timestamp &lt;- date_time_parse(loyalty_data$timestamp,
                                 zone = &quot;&quot;,
                                 format = &quot;%m/%d/%Y&quot;)
+for(i in 1:nrow(loyalty_data))
+{
+  if(loyalty_data$location[i] %like% &quot;Katerina&quot;) 
+  {
+  loyalty_data$location[i] &lt;- str_replace(loyalty_data$location[i],loyalty_data$location[i],&quot;Katerina&#39;s Cafe&quot;) 
+  }
+}
 
 cc_data &lt;- read_csv(&quot;MC2/cc_data.csv&quot;)
 
@@ -925,54 +939,42 @@ cc_data$timestamp_date &lt;- date_time_parse(cc_data$timestamp,
 cc_data$timestamp &lt;- date_time_parse(cc_data$timestamp,
                                 zone = &quot;&quot;,
                                 format = &quot;%m/%d/%Y %H:%M&quot;)
-
-cc_data</code></pre>
-<pre><code>## # A tibble: 1,490 x 6
-##    timestamp           location            price last4ccnum    id timestamp_date     
-##    &lt;dttm&gt;              &lt;chr&gt;               &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;             
-##  1 2014-01-06 07:28:00 Brew&#39;ve Been Served 11.3        4795    34 2014-01-06 00:00:00
-##  2 2014-01-06 07:34:00 Hallowed Grounds    52.2        7108    12 2014-01-06 00:00:00
-##  3 2014-01-06 07:35:00 Brew&#39;ve Been Served  8.33       6816    20 2014-01-06 00:00:00
-##  4 2014-01-06 07:36:00 Hallowed Grounds    16.7        9617    18 2014-01-06 00:00:00
-##  5 2014-01-06 07:37:00 Brew&#39;ve Been Served  4.24       7384    17 2014-01-06 00:00:00
-##  6 2014-01-06 07:38:00 Brew&#39;ve Been Served  4.17       5368    NA 2014-01-06 00:00:00
-##  7 2014-01-06 07:42:00 Coffee Cameleon     28.7        7253     6 2014-01-06 00:00:00
-##  8 2014-01-06 07:43:00 Brew&#39;ve Been Served  9.6        4948    NA 2014-01-06 00:00:00
-##  9 2014-01-06 07:43:00 Brew&#39;ve Been Served 16.9        9683    33 2014-01-06 00:00:00
-## 10 2014-01-06 07:47:00 Hallowed Grounds    16.5        8129    NA 2014-01-06 00:00:00
-## # ... with 1,480 more rows</code></pre>
-<pre class="r"><code>loyalty_freq &lt;- group_by(loyalty_data, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
-loyalty_freq</code></pre>
-<pre><code>## # A tibble: 33 x 2
-##    location                 freq
-##    &lt;chr&gt;                   &lt;int&gt;
-##  1 &quot;Katerina\x92s Caf\xe9&quot;   195
-##  2 &quot;Hippokampos&quot;             155
-##  3 &quot;Guy&#39;s Gyros&quot;             146
-##  4 &quot;Brew&#39;ve Been Served&quot;     140
-##  5 &quot;Ouzeri Elian&quot;             84
-##  6 &quot;Hallowed Grounds&quot;         80
-##  7 &quot;Abila Zacharo&quot;            71
-##  8 &quot;Kalami Kafenion&quot;          66
-##  9 &quot;Gelatogalore&quot;             60
-## 10 &quot;Bean There Done That&quot;     45
-## # ... with 23 more rows</code></pre>
+for(i in 1:nrow(cc_data))
+{
+  if(cc_data$location[i] %like% &quot;Katerina&quot;) 
+  {
+   cc_data$location[i] &lt;- str_replace(cc_data$location[i],cc_data$location[i],&quot;Katerina&#39;s Cafe&quot;) 
+  }
+}</code></pre>
 <pre class="r"><code>cc_freq &lt;- group_by(cc_data, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
-cc_freq</code></pre>
-<pre><code>## # A tibble: 34 x 2
-##    location                 freq
-##    &lt;chr&gt;                   &lt;int&gt;
-##  1 &quot;Katerina\x92s Caf\xe9&quot;   212
-##  2 &quot;Hippokampos&quot;             171
-##  3 &quot;Guy&#39;s Gyros&quot;             158
-##  4 &quot;Brew&#39;ve Been Served&quot;     156
-##  5 &quot;Hallowed Grounds&quot;         92
-##  6 &quot;Ouzeri Elian&quot;             87
-##  7 &quot;Abila Zacharo&quot;            72
-##  8 &quot;Gelatogalore&quot;             64
-##  9 &quot;Kalami Kafenion&quot;          64
-## 10 &quot;Bean There Done That&quot;     47
-## # ... with 24 more rows</code></pre>
+
+cc_freq_daily &lt;- group_by(cc_data, timestamp_date, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
+top3_place = c(&quot;Katerina&#39;s Cafe&quot;, &quot;Hippokampos&quot;,&quot;Guy&#39;s Gyros&quot;)
+
+cc_freq_daily_selected &lt;- cc_freq_daily %&gt;% filter(location %in% top3_place)
+
+top3_vis_cc &lt;- ggplot(cc_freq_daily_selected, aes(fill=as.character(timestamp_date), y=freq, x=location)) + 
+    geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+    geom_text(label = cc_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
+    ggtitle(&quot;CC data top 3 location&quot;)</code></pre>
+<pre class="r"><code>loyalty_freq &lt;- group_by(loyalty_data, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
+loyalty_freq_daily &lt;- group_by(loyalty_data, timestamp, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
+top3_place = c(&quot;Katerina&#39;s Cafe&quot;, &quot;Hippokampos&quot;,&quot;Guy&#39;s Gyros&quot;)
+
+loyalty_freq_daily_selected &lt;- loyalty_freq_daily %&gt;% filter(location %in% top3_place)
+
+top3_vis_L &lt;- ggplot(loyalty_freq_daily_selected, aes(fill=as.character(timestamp), y=freq, x=location)) + 
+    geom_bar(position=&quot;stack&quot;, stat=&quot;identity&quot;) +
+    geom_text(label = loyalty_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
+    ggtitle(&quot;Loyalty data top 3 location&quot;)
+
+ggplotly(top3_vis_L)</code></pre>
+<div id="htmlwidget-b2a1e871b40366910f12" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b2a1e871b40366910f12">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9],"base":[180,142,135],"x":[3,2,1],"y":[15,13,11],"text":["location: Katerina's Cafe<br />freq: 15<br />as.character(timestamp): 2014-01-06","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-06","location: Guy's Gyros<br />freq: 11<br />as.character(timestamp): 2014-01-06"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-06","legendgroup":"2014-01-06","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[164,123,132],"x":[3,1,2],"y":[16,12,10],"text":["location: Katerina's Cafe<br />freq: 16<br />as.character(timestamp): 2014-01-07","location: Guy's Gyros<br />freq: 12<br />as.character(timestamp): 2014-01-07","location: Hippokampos<br />freq: 10<br />as.character(timestamp): 2014-01-07"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(227,137,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-07","legendgroup":"2014-01-07","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[118,151,114],"x":[2,3,1],"y":[14,13,9],"text":["location: Hippokampos<br />freq: 14<br />as.character(timestamp): 2014-01-08","location: Katerina's Cafe<br />freq: 13<br />as.character(timestamp): 2014-01-08","location: Guy's Gyros<br />freq:  9<br />as.character(timestamp): 2014-01-08"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(196,154,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-08","legendgroup":"2014-01-08","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[137,101,106],"x":[3,1,2],"y":[14,13,12],"text":["location: Katerina's Cafe<br />freq: 14<br />as.character(timestamp): 2014-01-09","location: Guy's Gyros<br />freq: 13<br />as.character(timestamp): 2014-01-09","location: Hippokampos<br />freq: 12<br />as.character(timestamp): 2014-01-09"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(153,168,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-09","legendgroup":"2014-01-09","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[89,127,97],"x":[1,3,2],"y":[12,10,9],"text":["location: Guy's Gyros<br />freq: 12<br />as.character(timestamp): 2014-01-10","location: Katerina's Cafe<br />freq: 10<br />as.character(timestamp): 2014-01-10","location: Hippokampos<br />freq:  9<br />as.character(timestamp): 2014-01-10"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(83,180,0,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-10","legendgroup":"2014-01-10","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[108,87,85],"x":[3,2,1],"y":[19,10,4],"text":["location: Katerina's Cafe<br />freq: 19<br />as.character(timestamp): 2014-01-11","location: Hippokampos<br />freq: 10<br />as.character(timestamp): 2014-01-11","location: Guy's Gyros<br />freq:  4<br />as.character(timestamp): 2014-01-11"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,188,86,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-11","legendgroup":"2014-01-11","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[74,98,80],"x":[2,3,1],"y":[13,10,5],"text":["location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-12","location: Katerina's Cafe<br />freq: 10<br />as.character(timestamp): 2014-01-12","location: Guy's Gyros<br />freq:  5<br />as.character(timestamp): 2014-01-12"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,192,148,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-12","legendgroup":"2014-01-12","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[65,61,85],"x":[1,2,3],"y":[15,13,13],"text":["location: Guy's Gyros<br />freq: 15<br />as.character(timestamp): 2014-01-13","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-13","location: Katerina's Cafe<br />freq: 13<br />as.character(timestamp): 2014-01-13"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-13","legendgroup":"2014-01-13","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[68,51,56],"x":[3,2,1],"y":[17,10,9],"text":["location: Katerina's Cafe<br />freq: 17<br />as.character(timestamp): 2014-01-14","location: Hippokampos<br />freq: 10<br />as.character(timestamp): 2014-01-14","location: Guy's Gyros<br />freq:  9<br />as.character(timestamp): 2014-01-14"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,182,235,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-14","legendgroup":"2014-01-14","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[42,54,40],"x":[1,3,2],"y":[14,14,11],"text":["location: Guy's Gyros<br />freq: 14<br />as.character(timestamp): 2014-01-15","location: Katerina's Cafe<br />freq: 14<br />as.character(timestamp): 2014-01-15","location: Hippokampos<br />freq: 11<br />as.character(timestamp): 2014-01-15"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(6,164,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-15","legendgroup":"2014-01-15","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[36,29,27],"x":[3,1,2],"y":[18,13,13],"text":["location: Katerina's Cafe<br />freq: 18<br />as.character(timestamp): 2014-01-16","location: Guy's Gyros<br />freq: 13<br />as.character(timestamp): 2014-01-16","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-16"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(165,138,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-16","legendgroup":"2014-01-16","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[22,16,14],"x":[3,1,2],"y":[14,13,13],"text":["location: Katerina's Cafe<br />freq: 14<br />as.character(timestamp): 2014-01-17","location: Guy's Gyros<br />freq: 13<br />as.character(timestamp): 2014-01-17","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-17"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(223,112,248,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-17","legendgroup":"2014-01-17","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[7,7,11],"x":[3,2,1],"y":[15,7,5],"text":["location: Katerina's Cafe<br />freq: 15<br />as.character(timestamp): 2014-01-18","location: Hippokampos<br />freq:  7<br />as.character(timestamp): 2014-01-18","location: Guy's Gyros<br />freq:  5<br />as.character(timestamp): 2014-01-18"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(251,97,215,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-18","legendgroup":"2014-01-18","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.9,0.9,0.9],"base":[0,0,0],"x":[1,2,3],"y":[11,7,7],"text":["location: Guy's Gyros<br />freq: 11<br />as.character(timestamp): 2014-01-19","location: Hippokampos<br />freq:  7<br />as.character(timestamp): 2014-01-19","location: Katerina's Cafe<br />freq:  7<br />as.character(timestamp): 2014-01-19"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(255,102,168,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"2014-01-19","legendgroup":"2014-01-19","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,2,1],"y":[187.5,148.5,140.5],"text":[15,13,11],"hovertext":["location: Katerina's Cafe<br />freq: 15<br />as.character(timestamp): 2014-01-06","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-06","location: Guy's Gyros<br />freq: 11<br />as.character(timestamp): 2014-01-06"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-06","legendgroup":"2014-01-06","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,1,2],"y":[172,129,137],"text":[16,12,10],"hovertext":["location: Katerina's Cafe<br />freq: 16<br />as.character(timestamp): 2014-01-07","location: Guy's Gyros<br />freq: 12<br />as.character(timestamp): 2014-01-07","location: Hippokampos<br />freq: 10<br />as.character(timestamp): 2014-01-07"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-07","legendgroup":"2014-01-07","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2,3,1],"y":[125,157.5,118.5],"text":[14,13,9],"hovertext":["location: Hippokampos<br />freq: 14<br />as.character(timestamp): 2014-01-08","location: Katerina's Cafe<br />freq: 13<br />as.character(timestamp): 2014-01-08","location: Guy's Gyros<br />freq:  9<br />as.character(timestamp): 2014-01-08"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-08","legendgroup":"2014-01-08","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,1,2],"y":[144,107.5,112],"text":[14,13,12],"hovertext":["location: Katerina's Cafe<br />freq: 14<br />as.character(timestamp): 2014-01-09","location: Guy's Gyros<br />freq: 13<br />as.character(timestamp): 2014-01-09","location: Hippokampos<br />freq: 12<br />as.character(timestamp): 2014-01-09"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-09","legendgroup":"2014-01-09","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,3,2],"y":[95,132,101.5],"text":[12,10,9],"hovertext":["location: Guy's Gyros<br />freq: 12<br />as.character(timestamp): 2014-01-10","location: Katerina's Cafe<br />freq: 10<br />as.character(timestamp): 2014-01-10","location: Hippokampos<br />freq:  9<br />as.character(timestamp): 2014-01-10"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-10","legendgroup":"2014-01-10","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,2,1],"y":[117.5,92,87],"text":[19,10,4],"hovertext":["location: Katerina's Cafe<br />freq: 19<br />as.character(timestamp): 2014-01-11","location: Hippokampos<br />freq: 10<br />as.character(timestamp): 2014-01-11","location: Guy's Gyros<br />freq:  4<br />as.character(timestamp): 2014-01-11"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-11","legendgroup":"2014-01-11","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2,3,1],"y":[80.5,103,82.5],"text":[13,10,5],"hovertext":["location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-12","location: Katerina's Cafe<br />freq: 10<br />as.character(timestamp): 2014-01-12","location: Guy's Gyros<br />freq:  5<br />as.character(timestamp): 2014-01-12"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-12","legendgroup":"2014-01-12","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3],"y":[72.5,67.5,91.5],"text":[15,13,13],"hovertext":["location: Guy's Gyros<br />freq: 15<br />as.character(timestamp): 2014-01-13","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-13","location: Katerina's Cafe<br />freq: 13<br />as.character(timestamp): 2014-01-13"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-13","legendgroup":"2014-01-13","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,2,1],"y":[76.5,56,60.5],"text":[17,10,9],"hovertext":["location: Katerina's Cafe<br />freq: 17<br />as.character(timestamp): 2014-01-14","location: Hippokampos<br />freq: 10<br />as.character(timestamp): 2014-01-14","location: Guy's Gyros<br />freq:  9<br />as.character(timestamp): 2014-01-14"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-14","legendgroup":"2014-01-14","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,3,2],"y":[49,61,45.5],"text":[14,14,11],"hovertext":["location: Guy's Gyros<br />freq: 14<br />as.character(timestamp): 2014-01-15","location: Katerina's Cafe<br />freq: 14<br />as.character(timestamp): 2014-01-15","location: Hippokampos<br />freq: 11<br />as.character(timestamp): 2014-01-15"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-15","legendgroup":"2014-01-15","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,1,2],"y":[45,35.5,33.5],"text":[18,13,13],"hovertext":["location: Katerina's Cafe<br />freq: 18<br />as.character(timestamp): 2014-01-16","location: Guy's Gyros<br />freq: 13<br />as.character(timestamp): 2014-01-16","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-16"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-16","legendgroup":"2014-01-16","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,1,2],"y":[29,22.5,20.5],"text":[14,13,13],"hovertext":["location: Katerina's Cafe<br />freq: 14<br />as.character(timestamp): 2014-01-17","location: Guy's Gyros<br />freq: 13<br />as.character(timestamp): 2014-01-17","location: Hippokampos<br />freq: 13<br />as.character(timestamp): 2014-01-17"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-17","legendgroup":"2014-01-17","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3,2,1],"y":[14.5,10.5,13.5],"text":[15,7,5],"hovertext":["location: Katerina's Cafe<br />freq: 15<br />as.character(timestamp): 2014-01-18","location: Hippokampos<br />freq:  7<br />as.character(timestamp): 2014-01-18","location: Guy's Gyros<br />freq:  5<br />as.character(timestamp): 2014-01-18"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-18","legendgroup":"2014-01-18","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3],"y":[5.5,3.5,3.5],"text":[11,7,7],"hovertext":["location: Guy's Gyros<br />freq: 11<br />as.character(timestamp): 2014-01-19","location: Hippokampos<br />freq:  7<br />as.character(timestamp): 2014-01-19","location: Katerina's Cafe<br />freq:  7<br />as.character(timestamp): 2014-01-19"],"textfont":{"size":14.6645669291339,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"2014-01-19","legendgroup":"2014-01-19","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.7625570776256,"r":7.30593607305936,"b":40.1826484018265,"l":43.1050228310502},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"Loyalty data top 3 location","font":{"color":"rgba(0,0,0,1)","family":"","size":17.5342465753425},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,3.6],"tickmode":"array","ticktext":["Guy's Gyros","Hippokampos","Katerina's Cafe"],"tickvals":[1,2,3],"categoryorder":"array","categoryarray":["Guy's Gyros","Hippokampos","Katerina's Cafe"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"location","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-9.75,204.75],"tickmode":"array","ticktext":["0","50","100","150","200"],"tickvals":[0,50,100,150,200],"categoryorder":"array","categoryarray":["0","50","100","150","200"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"freq","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.978346456692913},"annotations":[{"text":"as.character(timestamp)","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"655c49df6682":{"x":{},"y":{},"fill":{},"type":"bar"},"655c5b5a569":{"x":{},"y":{},"fill":{}}},"cur_data":"655c49df6682","visdat":{"655c49df6682":["function (y) ","x"],"655c5b5a569":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>Animals &lt;- c(&quot;giraffes&quot;, &quot;orangutans&quot;, &quot;monkeys&quot;)
+SF_Zoo &lt;- c(20, 14, 23)
+LA_Zoo &lt;- c(12, 18, 29)
+data &lt;- data.frame(Animals, SF_Zoo, LA_Zoo)</code></pre>
 </div>
 
 <!--radix_placeholder_site_after_body-->
