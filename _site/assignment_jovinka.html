@@ -852,8 +852,8 @@ $(document).ready(function () {
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
-<a href="about.html">About</a>
-<a href="assignment - jovinka.html">Answer</a>
+<a href="assignment_jovinka.html">About</a>
+<a href="assignment_jovinka.html">Answer</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
 </nav>
@@ -881,10 +881,10 @@ $(document).ready(function () {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="about.html">About</a>
+  <a href="assignment_jovinka.html">About</a>
 </li>
 <li>
-  <a href="assignment - jovinka.html">Answer</a>
+  <a href="assignment_jovinka.html">Answer</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -904,6 +904,13 @@ $(document).ready(function () {
 
 <div id="question-1" class="section level2">
 <h2>Question 1</h2>
+<p>By using loyalty and credit card data, we can observe that the top three most visited places during the 2 weeks data are:</p>
+<ol style="list-style-type: decimal">
+<li>Katerina’s Cafe</li>
+<li>Hippokampos</li>
+<li>Guy’s Gyros</li>
+</ol>
+<p>As we can see in the figure below, those three location were visited</p>
 <pre class="r"><code>loyalty_data &lt;- read_csv(&quot;MC2/loyalty_data.csv&quot;)
 
 loyalty_data$timestamp &lt;- date_time_parse(loyalty_data$timestamp,
@@ -911,12 +918,61 @@ loyalty_data$timestamp &lt;- date_time_parse(loyalty_data$timestamp,
                                 format = &quot;%m/%d/%Y&quot;)
 
 cc_data &lt;- read_csv(&quot;MC2/cc_data.csv&quot;)
+
 cc_data$timestamp_date &lt;- date_time_parse(cc_data$timestamp,
                                 zone = &quot;&quot;,
                                 format = &quot;%m/%d/%Y&quot;)
 cc_data$timestamp &lt;- date_time_parse(cc_data$timestamp,
                                 zone = &quot;&quot;,
-                                format = &quot;%m/%d/%Y %H:%M&quot;)</code></pre>
+                                format = &quot;%m/%d/%Y %H:%M&quot;)
+
+cc_data</code></pre>
+<pre><code>## # A tibble: 1,490 x 6
+##    timestamp           location            price last4ccnum    id timestamp_date     
+##    &lt;dttm&gt;              &lt;chr&gt;               &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dttm&gt;             
+##  1 2014-01-06 07:28:00 Brew&#39;ve Been Served 11.3        4795    34 2014-01-06 00:00:00
+##  2 2014-01-06 07:34:00 Hallowed Grounds    52.2        7108    12 2014-01-06 00:00:00
+##  3 2014-01-06 07:35:00 Brew&#39;ve Been Served  8.33       6816    20 2014-01-06 00:00:00
+##  4 2014-01-06 07:36:00 Hallowed Grounds    16.7        9617    18 2014-01-06 00:00:00
+##  5 2014-01-06 07:37:00 Brew&#39;ve Been Served  4.24       7384    17 2014-01-06 00:00:00
+##  6 2014-01-06 07:38:00 Brew&#39;ve Been Served  4.17       5368    NA 2014-01-06 00:00:00
+##  7 2014-01-06 07:42:00 Coffee Cameleon     28.7        7253     6 2014-01-06 00:00:00
+##  8 2014-01-06 07:43:00 Brew&#39;ve Been Served  9.6        4948    NA 2014-01-06 00:00:00
+##  9 2014-01-06 07:43:00 Brew&#39;ve Been Served 16.9        9683    33 2014-01-06 00:00:00
+## 10 2014-01-06 07:47:00 Hallowed Grounds    16.5        8129    NA 2014-01-06 00:00:00
+## # ... with 1,480 more rows</code></pre>
+<pre class="r"><code>loyalty_freq &lt;- group_by(loyalty_data, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
+loyalty_freq</code></pre>
+<pre><code>## # A tibble: 33 x 2
+##    location                 freq
+##    &lt;chr&gt;                   &lt;int&gt;
+##  1 &quot;Katerina\x92s Caf\xe9&quot;   195
+##  2 &quot;Hippokampos&quot;             155
+##  3 &quot;Guy&#39;s Gyros&quot;             146
+##  4 &quot;Brew&#39;ve Been Served&quot;     140
+##  5 &quot;Ouzeri Elian&quot;             84
+##  6 &quot;Hallowed Grounds&quot;         80
+##  7 &quot;Abila Zacharo&quot;            71
+##  8 &quot;Kalami Kafenion&quot;          66
+##  9 &quot;Gelatogalore&quot;             60
+## 10 &quot;Bean There Done That&quot;     45
+## # ... with 23 more rows</code></pre>
+<pre class="r"><code>cc_freq &lt;- group_by(cc_data, location) %&gt;% summarise(freq = n())%&gt;% arrange(desc(freq))
+cc_freq</code></pre>
+<pre><code>## # A tibble: 34 x 2
+##    location                 freq
+##    &lt;chr&gt;                   &lt;int&gt;
+##  1 &quot;Katerina\x92s Caf\xe9&quot;   212
+##  2 &quot;Hippokampos&quot;             171
+##  3 &quot;Guy&#39;s Gyros&quot;             158
+##  4 &quot;Brew&#39;ve Been Served&quot;     156
+##  5 &quot;Hallowed Grounds&quot;         92
+##  6 &quot;Ouzeri Elian&quot;             87
+##  7 &quot;Abila Zacharo&quot;            72
+##  8 &quot;Gelatogalore&quot;             64
+##  9 &quot;Kalami Kafenion&quot;          64
+## 10 &quot;Bean There Done That&quot;     47
+## # ... with 24 more rows</code></pre>
 </div>
 
 <!--radix_placeholder_site_after_body-->
