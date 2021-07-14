@@ -16,7 +16,9 @@ knitr::opts_chunk$set(echo = TRUE,
 ```{r install packages and load library, include=FALSE}
 packages = c('raster', 'sf', 'st',
              'tmap','mapview', 'clock', 
-             'tidyverse','plotly','lubridate')
+             'tidyverse','plotly','lubridate', 'ggiraph', 'plotly', 
+             'DT', 'patchwork',
+             'tidyverse')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -28,6 +30,14 @@ for (p in packages){
 
 ## Question 1
 
+By using loyalty and credit card data, we can observe that the top three most visited places during the 2 weeks data are:
+
+1. Katerina's Cafe
+2. Hippokampos
+3. Guy's Gyros
+
+As we can see in the figure below, those three location were visited 
+
 ```{r import cc data and loyalty card data}
 loyalty_data <- read_csv("MC2/loyalty_data.csv")
 
@@ -36,6 +46,7 @@ loyalty_data$timestamp <- date_time_parse(loyalty_data$timestamp,
                                 format = "%m/%d/%Y")
 
 cc_data <- read_csv("MC2/cc_data.csv")
+
 cc_data$timestamp_date <- date_time_parse(cc_data$timestamp,
                                 zone = "",
                                 format = "%m/%d/%Y")
@@ -43,6 +54,21 @@ cc_data$timestamp <- date_time_parse(cc_data$timestamp,
                                 zone = "",
                                 format = "%m/%d/%Y %H:%M")
 
+cc_data
+
 
 ```
 
+``` {r Data Vizualisation Loyalty data}
+
+loyalty_freq <- group_by(loyalty_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+loyalty_freq
+
+```
+
+```{r}
+cc_freq <- group_by(cc_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+cc_freq
+
+
+```
