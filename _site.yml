@@ -7,7 +7,7 @@ navbar:
   right:
     - text: "Home"
       href: Background.html
-    - text: "Background"
+    - text: "Methodology and Data Preparation"
       href: Data_Preparation.html
     - text: "Answer"
       href: assignment_jovinka.html
