@@ -80,6 +80,7 @@ cc_data$timestamp <- date_time_parse(cc_data$timestamp,
                                 zone = "",
                                 format = "%m/%d/%Y %H:%M")
 cc_data$time = format(cc_data$timestamp, format = "%H:%M")
+cc_data$hours = get_hour(cc_data$timestamp)
 cc_data$day = weekdays(cc_data$timestamp)
 
 for(i in 1:nrow(cc_data))
@@ -101,8 +102,17 @@ loyalty_freq
 
 ```
 
-``` {r cc top 3 daily frequency}
+```{r cc and loyalty daytime}
 
+cc_freq <- group_by(cc_data, location, day, hours) %>% summarise(freq = n())%>% arrange(desc(freq))
+cc_freq
+
+loyalty_freq <- group_by(loyalty_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+loyalty_freq
+
+```
+
+``` {r cc top 3 daily frequency}
 
 
 cc_freq_daily <- group_by(cc_data, timestamp_date, location) %>% summarise(freq = n())%>% arrange(desc(freq))
