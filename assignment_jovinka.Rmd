@@ -2,7 +2,6 @@
 title: "Vast Mini Challenge 2 - Answer"
 author: "Jovinka Hartanto"
 date: "7/13/2021"
-output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -102,17 +101,74 @@ loyalty_freq
 
 ```
 
-```{r cc and loyalty daytime}
+```{r cc and loyalty daytime, figures-side, fig.show="hold", out.width="50%"}
 
-cc_freq <- group_by(cc_data, location, day, hours) %>% summarise(freq = n())%>% arrange(desc(freq))
-cc_freq
+cc_freq_2 <- group_by(cc_data, location, day, hours) %>% summarise(freq = n())%>% arrange(desc(freq))
+cc_freq_selected_1 <- cc_freq_2 %>% filter(location == "Katerina's Cafe") %>% arrange(day)
+cc_freq_selected_2 <- cc_freq_2 %>% filter(location == "Guy's Gyros") %>% arrange(day)
+cc_freq_selected_3 <- cc_freq_2 %>% filter(location == "Hippokampos") %>% arrange(day)
 
-loyalty_freq <- group_by(loyalty_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-loyalty_freq
+int_plot_cc <- function(cc_freq_selected)
+{cc_freq_selected%>%
+  plot_ly(
+    type = 'bar',
+    x = ~hours,
+    y = ~freq,
+    text = ~day,
+    hoverinfo = 'text',
+    mode = 'markers',
+    colors = 'blue',
+    transforms = list(
+      list(
+        type = 'filter',
+        target = ~day,
+        operation = '=',
+        value = unique(cc_freq_selected$day)[1]
+      )
+  )) %>% layout(
+    updatemenus = list(
+      list(
+        type = 'dropdown',
+        active = 0,
+        buttons = list(
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[2]),
+               label = unique(cc_freq_selected$day)[2]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[6]),
+               label = unique(cc_freq_selected$day)[6]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[7]),
+               label = unique(cc_freq_selected$day)[7]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[5]),
+               label = unique(cc_freq_selected$day)[5]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[1]),
+               label = unique(cc_freq_selected$day)[1]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[3]),
+               label = unique(cc_freq_selected$day)[3]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(cc_freq_selected$day)[4]),
+               label = unique(cc_freq_selected$day)[4])
+        )
+      )
+    )
+  ) %>% layout(title = unique(cc_freq_selected$location), barmode = 'group')
+}
+
+
+int_plot_cc(cc_freq_selected_1)
+int_plot_cc(cc_freq_selected_2)
+int_plot_cc(cc_freq_selected_3)
+
+
+
 
 ```
 
-``` {r cc top 3 daily frequency}
+``` {r loyalty and  cc top 3 daily frequency, figures-side, fig.show="hold", out.width="100%"}
 
 
 cc_freq_daily <- group_by(cc_data, timestamp_date, location) %>% summarise(freq = n())%>% arrange(desc(freq))
@@ -126,10 +182,6 @@ top3_vis_cc <- ggplot(cc_freq_daily_selected, aes(fill=as.character(timestamp_da
     ggtitle("CC data top 3 location")
 
 ggplotly(top3_vis_cc)
-
-```
-
-```{r loyalty top 3 daily frequency}
 
 loyalty_freq_daily <- group_by(loyalty_data, timestamp, location) %>% summarise(freq = n())%>% arrange(desc(freq))
 top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
@@ -145,6 +197,14 @@ ggplotly(top3_vis_L)
 
 ```
 
+```{r}
+
+
+```
+
+```{r}
+
+```
 
 
 ##Question 2
@@ -320,4 +380,45 @@ tm_shape(bgmap) +
 
 
 
+```
+
+```{r}
+library(plotly)    
+
+p <- iris %>%
+  plot_ly(
+    type = 'scatter', 
+    x = ~Sepal.Length, 
+    y = ~Petal.Length,
+    text = ~Species,
+    hoverinfo = 'text',
+    mode = 'markers', 
+    transforms = list(
+      list(
+        type = 'filter',
+        target = ~Species,
+        operation = '=',
+        value = unique(iris$Species)[1]
+      )
+  )) %>% layout(
+    updatemenus = list(
+      list(
+        type = 'dropdown',
+        active = 0,
+        buttons = list(
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(iris$Species)[1]),
+               label = unique(iris$Species)[1]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(iris$Species)[2]),
+               label = unique(iris$Species)[2]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(iris$Species)[3]),
+               label = unique(iris$Species)[3])
+        )
+      )
+    )
+  )
+
+p
 ```

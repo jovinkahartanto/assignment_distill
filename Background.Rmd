@@ -1,7 +1,6 @@
 ---
 author: "Jovinka Hartanto"
 date: "7/14/2021"
-output: html_document
 site: distill::distill_website
 ---
 
