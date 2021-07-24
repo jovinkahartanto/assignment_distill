@@ -27,33 +27,16 @@ for (p in packages){
 
 ```
 
-## Question 1
+## Question (1)
+Using just the credit and loyalty card data, identify the most popular locations, and when they are popular. What anomalies do you see? What corrections would you recommend to correct these anomalies? Please limit your answer to 8 images and 300 words.
 
-By observing loyalty and credit card data, we can observe that the top three most visited places during the 2 weeks data are:
+## Answer
 
-1. Katerina's Cafe
-Employee usually go to Katerina's Cafe on <day> between <hours> 
+### Popular Location
 
-2. Hippokampos
-Employee usually go to Hippokampos on <day> between <hours> 
+By observing loyalty and credit card data, we can observe that the top three most popular location during the 2 weeks data are Katerina's Cafe followed by Hippokampos, and Guy's Gyros.
 
-3. Guy's Gyros
-Employee usually go to Guy's Gyros Cafe on <day> between <hours> 
-
-##Anomalies
-
-1. Mismatch between credit card and loyalty card transactions
-
-As we can see in the figure below, the number of daily frequency from credit card data and loyalty data are different. Based on credit card data the Katerina's Cafe is most visited in 2014-06-01 with total of ... transactions. However, if we observed loyalty data Katerina's Cafe is most visited in ... with total of ... transactions. This problem also happened to other shops or location that we are observing. 
-
-There are total of ... un-matched records. These un-matched records might lead to some new clues. 
-
-2. Wrong time in credit card transaction data
-Bean There Done That
-Brewed Awakenings
-Jack's Magical Beans
-
-To correct this anomaly, we can add vehicle data to our analysis, we might be able to determine some of the transactions based on the employee location. 
+As showed in the data table below, both loyalty and credit card data shows a consistent result for the popular location.
 
 
 ```{r import cc data and loyalty card data, include=FALSE}
@@ -92,16 +75,53 @@ for(i in 1:nrow(cc_data))
 
 ```
 
-```{r cc freq and cc loyalty}
+```{r cc freq and cc loyalty, echo=FALSE}
 cc_freq <- group_by(cc_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-cc_freq
+datatable(cc_freq, 
+          caption = 'Credit Card Frequency')
 
 loyalty_freq <- group_by(loyalty_data, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-loyalty_freq
+datatable(loyalty_freq,
+          caption = 'Loyalty Card Frequency')
 
 ```
+Stacked bar below shows which date are the most popular for the these popular place based on loyalty and credit card data, which apparently shows a different results.Based on loyalty card transaction data **Katerina's Cafe** was popular on **11 January 2014**, with 19 transactions from GASTech employees. **Hippokampos** has the most transaction on **8 January 2014** and lastly **Guy's Gyros** has the most transaction on **15 January 2014**.
+However based on credit card data **Katerina's Cafe** is most popular on **6 January 2014**, **Hippokampos** on **16 January 2014** and **Guy's Gyros** on **13 January 2014**
 
-```{r cc and loyalty daytime, figures-side, fig.show="hold", out.width="50%"}
+
+``` {r loyalty and  cc top 3 daily frequency, echo = FALSE}
+loyalty_freq_daily <- group_by(loyalty_data, timestamp, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
+
+loyalty_freq_daily_selected <- loyalty_freq_daily %>% filter(location %in% top3_place)
+
+top3_vis_L <- ggplot(loyalty_freq_daily_selected, aes(fill=as.character(timestamp), y=freq, x=location)) + 
+    geom_bar(position="stack", stat="identity") +
+    geom_text(label = loyalty_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
+    ggtitle("Loyalty data top 3 location")
+
+ggplotly(top3_vis_L)
+
+
+cc_freq_daily <- group_by(cc_data, timestamp_date, location) %>% summarise(freq = n())%>% arrange(desc(freq))
+top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
+
+cc_freq_daily_selected <- cc_freq_daily %>% filter(location %in% top3_place)
+
+top3_vis_cc <- ggplot(cc_freq_daily_selected, aes(fill=as.character(timestamp_date), y=freq, x=location)) + 
+    geom_bar(position="stack", stat="identity") +
+    geom_text(label = cc_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
+    ggtitle("CC data top 3 location")
+
+ggplotly(top3_vis_cc)
+
+
+
+```
+Interactive bar graph was created below by using credit card dara to observe the patterns of visiting the top three locations in different hours of the day. We can see that most of the GASTech employee visited Katerina's Cafe and Guy's Gyros during dinner time, on the other hand Hippokampos is more popular during lunch time, except for weekends. 
+
+
+```{r cc daytime, echo= FALSE}
 
 cc_freq_2 <- group_by(cc_data, location, day, hours) %>% summarise(freq = n())%>% arrange(desc(freq))
 cc_freq_selected_1 <- cc_freq_2 %>% filter(location == "Katerina's Cafe") %>% arrange(day)
@@ -129,7 +149,6 @@ int_plot_cc <- function(cc_freq_selected)
     updatemenus = list(
       list(
         type = 'dropdown',
-        active = 0,
         buttons = list(
           list(method = "restyle",
                args = list("transforms[0].value", unique(cc_freq_selected$day)[2]),
@@ -155,7 +174,7 @@ int_plot_cc <- function(cc_freq_selected)
         )
       )
     )
-  ) %>% layout(title = unique(cc_freq_selected$location), barmode = 'group')
+  ) %>% layout(title = unique(cc_freq_selected$location))
 }
 
 
@@ -168,185 +187,274 @@ int_plot_cc(cc_freq_selected_3)
 
 ```
 
-``` {r loyalty and  cc top 3 daily frequency, figures-side, fig.show="hold", out.width="100%"}
+
+### Anomalies
+
+1. Mismatch between credit card and loyalty card transactions
+
+As we can see above, the number of daily frequency of transactions are different between credit card data and loyalty card data. Further observations was performed and it shows that there are total of 409 un-matched records. These un-matched records might lead to some new clues. Unmatched records can be seen in the data table below
 
 
-cc_freq_daily <- group_by(cc_data, timestamp_date, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
+```{r mismatch cc and loyalty data, echo= FALSE}
 
-cc_freq_daily_selected <- cc_freq_daily %>% filter(location %in% top3_place)
+cc_loyalty = merge(cc_data, loyalty_data, by.x = c("timestamp_date","location","price"), by.y = c("timestamp", "location","price"), all.x = TRUE)
 
-top3_vis_cc <- ggplot(cc_freq_daily_selected, aes(fill=as.character(timestamp_date), y=freq, x=location)) + 
-    geom_bar(position="stack", stat="identity") +
-    geom_text(label = cc_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
-    ggtitle("CC data top 3 location")
+mismatch_cc_loyalty = cc_loyalty %>% filter(is.na(cc_loyalty$loyaltynum)) %>% unique()
 
-ggplotly(top3_vis_cc)
+datatable(mismatch_cc_loyalty)
 
-loyalty_freq_daily <- group_by(loyalty_data, timestamp, location) %>% summarise(freq = n())%>% arrange(desc(freq))
-top3_place = c("Katerina's Cafe", "Hippokampos","Guy's Gyros")
 
-loyalty_freq_daily_selected <- loyalty_freq_daily %>% filter(location %in% top3_place)
 
-top3_vis_L <- ggplot(loyalty_freq_daily_selected, aes(fill=as.character(timestamp), y=freq, x=location)) + 
-    geom_bar(position="stack", stat="identity") +
-    geom_text(label = loyalty_freq_daily_selected$freq, position=position_stack(vjust=0.5))+
-    ggtitle("Loyalty data top 3 location")
+```
+2. Wrong time in credit card transaction data for three coffee shops, Bean There Done That, Brewed Awakenings, and Jack's Magical Beans
 
-ggplotly(top3_vis_L)
+To correct this anomaly, we can add vehicle data to our analysis, we might be able to determine some of the transactions based on the employee location. 
 
+```{r wrong time cc_data, echo = false}
+
+cc_selected <- cc_data %>% filter(location %in% c('Bean There Done That','Brewed Awakenings',"Jack's Magical Beans"))
+
+datatable(cc_selected)
+
+```
+
+
+## GPS DATA PREP
+
+```{r gps time duration}
+# gps_data <- read_csv("MC2/gps.csv")
+# 
+# gps_data$Timestamp_date <- date_time_parse(gps_data$Timestamp,
+#                                 zone = "",
+#                                 format = "%m/%d/%Y")
+# 
+# gps_data$Timestamp <- date_time_parse(gps_data$Timestamp,
+#                                 zone = "",
+#                                 format = "%m/%d/%Y %H:%M")
+# gps_data$Time <- format(gps_data$Timestamp, format = "%H:%M")
+# gps_data$Hour <- get_hour(gps_data$Timestamp)
+# 
+# 
+# gps_sort <- gps_data[order(gps_data$Timestamp, gps_data$id),]
+# 
+# stop_fin_2 = data.frame()
+# 
+# for (id_1 in unique(gps_sort$id))
+# {
+#   make_stop = data.frame()
+#   gps_id <- gps_sort %>%
+#   filter(id==id_1)
+#   
+#   for(i in 1:nrow(gps_id))
+#   {
+#     if(i < nrow(gps_id))
+#     {
+#       start <- gps_id$Timestamp[i]
+#       end <- gps_id$Timestamp[i+1]
+#     } else
+#     {
+#       start <- gps_id$Timestamp[i]
+#       end <- gps_id$Timestamp[i]
+#       print(start)
+#     }
+#     elapsed.time <- start%--%end
+#     time_duration <- as.duration(elapsed.time)
+#     
+#     if(time_duration > 300)
+#     {
+#       make_stop = rbind(make_stop,cbind(gps_id[i,],time_duration,i),cbind(gps_id[i+1,],time_duration,i))
+#     }
+#     
+#   }
+#   
+#   stop_fin_2 = rbind(stop_fin_2, make_stop)
+# }
 ```
 
 ```{r}
 
 
+
 ```
 
-```{r}
+
+```{r location point}
+# 
+# location_point = read_csv("MC2/stop_fin.csv") %>% select(lat,long,Possible_Location)%>% unique()
+# stop_fin_2$lat = round(stop_fin_2$lat,5)
+# stop_fin_2$long = round(stop_fin_2$long,5)
+# 
+# stop_final = merge(stop_fin_2,location_point, by.x = c("lat","long"), by.y = c("lat","long"), all.x = TRUE)
+# 
+# stop_fin <- stop_final
+# 
+# 
+# stop_fin_location <- stop_fin[!(stop_fin$Possible_Location %like% 'mice'),]
+# 
+# gps_sf_stopfin <- st_as_sf(stop_fin_location,
+#                    coords = c("long","lat"),
+#                    crs=4326)
+# 
+```
+
+```{r FINDING LOCATION LONG LAT}
+
+# gps_sf_stopfin_unique1 <- gps_sf_stopfin  %>% select(Possible_Location,geometry)%>%unique()%>%arrange(Possible_Location)
+# 
+# gps_sf_stopfin_unique <- gps_sf_stopfin_unique1[-c(221,476,644,1100,1103),]
+# 
+# gps_path_stopfin <- gps_sf_stopfin_unique %>%
+#   group_by(Possible_Location) %>%
+#   summarize(m_Timestamp = mean(geometry),
+#             do_union = FALSE ) %>%
+#   st_cast("LINESTRING")
+# 
+# 
+# Abila_st <- st_read(dsn = "MC2/Geospatial",
+#                     layer = "Abila")
+# 
+# P <- npts(Abila_st, by_feature = TRUE)
+# abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
+# bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
+# 
+# tmap_mode("view")
+# tm_shape(bgmap) +
+#   tm_rgb(bgmap, r = 1, g = 2, b = 3,
+#          alpha = NA,
+#          saturation = 1,
+#          interpolate = TRUE,
+#          max.value = 255) +
+#   tm_shape(abila_st_2) +
+#   tm_lines(col = "red", scale = 1)+
+#   tm_shape(gps_path_stopfin[c(44,21:43),]) +
+#   tm_lines(col = "blue", scale =4, interactive = TRUE) +
+#   tm_text("Possible_Location", size = 3, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
+
+```
+```{r tracking car gps stop}
+
 
 ```
 
 
 ##Question 2
 
-```{r gps time duration}
-gps_data <- read_csv("MC2/gps.csv")
+Based on employee location, we can figure out the timing range for cc transaction in 
 
-gps_data$Timestamp_date <- date_time_parse(gps_data$Timestamp,
-                                zone = "",
-                                format = "%m/%d/%Y")
+Bean There Done That
+Brewed Awakenings
+Jack's Magical Beans
 
-gps_data$Timestamp <- date_time_parse(gps_data$Timestamp,
-                                zone = "",
-                                format = "%m/%d/%Y %H:%M")
-gps_data$Time <- format(gps_data$Timestamp, format = "%H:%M")
-gps_data$Hour <- get_hour(gps_data$Timestamp)
+```{r finding cc timing}
 
 
-gps_sort <- gps_data[order(gps_data$Timestamp, gps_data$id),]
+# cc_selected <- cc_data %>% filter(location %in% c('Bean There Done That','Brewed Awakenings',"Jack's Magical Beans"))
+# 
+# cc2_fixed <- merge(cc_selected,stop_fin, by.x = c("id","timestamp_date","location"), by.y = c("id","Timestamp_date","Possible_Location"), all.x = TRUE) %>% 
+#   select(timestamp, location, price, last4ccnum,id, Timestamp, timestamp_date) %>% group_by(timestamp, location, price, last4ccnum,id, timestamp_date) %>% 
+#   summarize(New_Timestamp = mean(Timestamp) ) %>% ungroup() %>% select(New_Timestamp,location, price, last4ccnum,id, timestamp_date)
+# 
+# colnames(cc2_fixed) <- c('timestamp','location','price','last4ccnum','id','timestamp_date')
+# 
+# cc_data_2<- read_csv("MC2/cc_data.csv") %>% filter(!(location %in% c('Bean There Done That','Brewed Awakenings',"Jack's Magical Beans")))
+# 
+# 
+# cc_data_2$timestamp_date <- date_time_parse(cc_data_2$timestamp,
+#                                  zone = "",
+#                                 format = "%m/%d/%Y")
+# 
+# cc_data_2$timestamp <- date_time_parse(cc_data_2$timestamp,
+#                                 zone = "",
+#                                 format = "%m/%d/%Y %H:%M")
+# 
+# cc_data_fixed <- rbind(cc_data_2,cc2_fixed)
+# 
+# 
+# cc_data_fixed$time = format(cc_data$timestamp, format = "%H:%M")
+# cc_data_fixed$hours = get_hour(cc_data$timestamp)
+# cc_data_fixed$day = weekdays(cc_data$timestamp)
+# 
+# for(i in 1:nrow(cc_data_fixed))
+# {
+#   if(cc_data_fixed$location[i] %like% "Katerina") 
+#   {
+#    cc_data_fixed$location[i] <- str_replace(cc_data$location[i],cc_data$location[i],"Katerina's Cafe") 
+#   }
+# }
+# 
+# 
+# cc_data_fixed
 
-stop_fin_2 = data.frame()
+```
 
-for (id_1 in unique(gps_sort$id))
-{
-  make_stop = data.frame()
-  gps_id <- gps_sort %>%
-  filter(id==id_1)
+#QUESTION 3
+
+13,15,21,24 -> meeting point 1,2,4,5,6
+
+Inga Ferro, Loreto Bodrogi, Hennie Osvaldo, and Minke Mies are 
+
+```{r showing unofficial relationship among gastech}
+# gps_sf_stopfin_unique1 <- gps_sf_stopfin  %>% select(Possible_Location,geometry)%>%unique()%>%arrange(Possible_Location)
+# 
+# gps_sf_stopfin_unique <- gps_sf_stopfin_unique1[-c(221,476,644,1100,1103),]
+# 
+# gps_path_stopfin <- gps_sf_stopfin_unique %>%
+#   group_by(Possible_Location) %>%
+#   summarize(m_Timestamp = mean(geometry),
+#             do_union = FALSE ) %>%
+#   st_cast("LINESTRING")
+# 
+# 
+# Abila_st <- st_read(dsn = "MC2/Geospatial",
+#                     layer = "Abila")
+# 
+# P <- npts(Abila_st, by_feature = TRUE)
+# abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
+# bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
+# 
+# tmap_mode("view")
+# tm_shape(bgmap) +
+#   tm_rgb(bgmap, r = 1, g = 2, b = 3,
+#          alpha = NA,
+#          saturation = 1,
+#          interpolate = TRUE,
+#          max.value = 255) +
+#   tm_shape(abila_st_2) +
+#   tm_lines(col = "red", scale = 1)+
+#   tm_shape(gps_path_stopfin[c(50:56),]) +
+#   tm_lines(col = "blue", scale =4, interactive = TRUE) +
+#  tm_text("Possible_Location", size = 3, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
   
-  for(i in 1:nrow(gps_id))
-  {
-    if(i < nrow(gps_id))
-    {
-      start <- gps_id$Timestamp[i]
-      end <- gps_id$Timestamp[i+1]
-    } else
-    {
-      start <- gps_id$Timestamp[i]
-      end <- gps_id$Timestamp[i]
-      print(start)
-    }
-    elapsed.time <- start%--%end
-    time_duration <- as.duration(elapsed.time)
-    
-    if(time_duration > 300)
-    {
-      make_stop = rbind(make_stop,cbind(gps_id[i,],time_duration,i),cbind(gps_id[i+1,],time_duration,i))
-    }
-    
-  }
-  
-  stop_fin_2 = rbind(stop_fin_2, make_stop)
-}
 ```
 ```{r}
-elapsed.time
-```
-
-
-```{r location point}
-
-location_point = read_csv("MC2/stop_fin.csv") %>% select(lat,long,Possible_Location)%>% unique()
-stop_fin_2$lat = round(stop_fin_2$lat,5)
-stop_fin_2$long = round(stop_fin_2$long,5)
-
-stop_final = merge(stop_fin_2,location_point, by.x = c("lat","long"), by.y = c("lat","long"), all.x = TRUE)
-
-stop_fin <- stop_final
-
-
-stop_fin_location <- stop_fin[!(stop_fin$Possible_Location %like% 'mice'),]
-
-gps_sf_stopfin <- st_as_sf(stop_fin_location,
-                   coords = c("long","lat"),
-                   crs=4326)
-
-```
-
-```{r}
-
-gps_sf_stopfin_unique1 <- gps_sf_stopfin  %>% select(Possible_Location,geometry)%>%unique()%>%arrange(Possible_Location)
-
-gps_sf_stopfin_unique <- gps_sf_stopfin_unique1[-c(221,476,644,1100,1103),]
-
-gps_path_stopfin <- gps_sf_stopfin_unique %>%
-  group_by(Possible_Location) %>%
-  summarize(m_Timestamp = mean(geometry),
-            do_union = FALSE ) %>%
-  st_cast("LINESTRING")
-
-
-Abila_st <- st_read(dsn = "MC2/Geospatial",
-                    layer = "Abila")
-
-P <- npts(Abila_st, by_feature = TRUE)
-abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
-bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
-
-tmap_mode("view")
-tm_shape(bgmap) +
-  tm_rgb(bgmap, r = 1, g = 2, b = 3,
-         alpha = NA,
-         saturation = 1,
-         interpolate = TRUE,
-         max.value = 255) +
-  tm_shape(abila_st_2) +
-  tm_lines(col = "red", scale = 1)+
-  tm_shape(gps_path_stopfin[9,]) +
-  tm_lines(col = "blue", scale =4, interactive = TRUE) +
-  tm_text("Possible_Location", size = 3, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
-
-```
-
-
-```{r}
-gps_data <- read_csv("MC2/gps.csv")
-
-gps_data$Timestamp_date <- date_time_parse(gps_data$Timestamp,
-                                zone = "",
-                                format = "%m/%d/%Y")
-
-gps_data$Timestamp <- date_time_parse(gps_data$Timestamp,
-                                zone = "",
-                                format = "%m/%d/%Y %H:%M")
-gps_data$Time <- format(gps_data$Timestamp, format = "%H:%M")
-gps_data$Hour <- get_hour(gps_data$Timestamp)
-
-
-gps_sf <- st_as_sf(gps_data,
-                   coords = c("long","lat"),
-                   crs=4326)
-
-gps_path <- gps_sf %>%
-  group_by(id, Timestamp_date,Hour) %>%
-  summarize(m_Timestamp = mean(Timestamp_date),
-            do_union = FALSE ) %>%
-  st_cast("LINESTRING")
-
-
-Abila_st <- st_read(dsn = "MC2/Geospatial",
-                    layer = "Abila")
-P <- npts(Abila_st, by_feature = TRUE)
-abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
+# gps_data <- read_csv("MC2/gps.csv")
+# 
+# gps_data$Timestamp_date <- date_time_parse(gps_data$Timestamp,
+#                                 zone = "",
+#                                 format = "%m/%d/%Y")
+# 
+# gps_data$Timestamp <- date_time_parse(gps_data$Timestamp,
+#                                 zone = "",
+#                                 format = "%m/%d/%Y %H:%M")
+# gps_data$Time <- format(gps_data$Timestamp, format = "%H:%M")
+# gps_data$Hour <- get_hour(gps_data$Timestamp)
+# 
+# 
+# gps_sf <- st_as_sf(gps_data,
+#                    coords = c("long","lat"),
+#                    crs=4326)
+# 
+# gps_path <- gps_sf %>%
+#   group_by(id, Timestamp_date,Hour) %>%
+#   summarize(m_Timestamp = mean(Timestamp_date),
+#             do_union = FALSE ) %>%
+#   st_cast("LINESTRING")
+# 
+# 
+# Abila_st <- st_read(dsn = "MC2/Geospatial",
+#                     layer = "Abila")
+# P <- npts(Abila_st, by_feature = TRUE)
+# abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
 
 
 ```
@@ -359,66 +467,26 @@ abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
 
 ```{r}
 
-gps_path_selected <- gps_path %>%
-  filter(id==28)
-
-
-bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
-
-tmap_mode("view")
-tm_shape(bgmap) +
-  tm_rgb(bgmap, r = 1, g = 2, b = 3,
-         alpha = NA,
-         saturation = 1,
-         interpolate = TRUE,
-         max.value = 255) +
-  tm_shape(abila_st_2) +
-  tm_lines(col = "red", scale = 1)+
-  tm_shape(gps_path_selected[1:4,]) +
-  tm_lines(col = "black", scale =4, interactive = TRUE) +
-  tm_text("Hour", size = 3, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
+# gps_path_selected <- gps_path %>%
+#   filter(id==28)
+# 
+# 
+# bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
+# 
+# tmap_mode("view")
+# tm_shape(bgmap) +
+#   tm_rgb(bgmap, r = 1, g = 2, b = 3,
+#          alpha = NA,
+#          saturation = 1,
+#          interpolate = TRUE,
+#          max.value = 255) +
+#   tm_shape(abila_st_2) +
+#   tm_lines(col = "red", scale = 1)+
+#   tm_shape(gps_path_selected[1:4,]) +
+#   tm_lines(col = "black", scale =4, interactive = TRUE) +
+#   tm_text("Hour", size = 3, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
 
 
 
 ```
 
-```{r}
-library(plotly)    
-
-p <- iris %>%
-  plot_ly(
-    type = 'scatter', 
-    x = ~Sepal.Length, 
-    y = ~Petal.Length,
-    text = ~Species,
-    hoverinfo = 'text',
-    mode = 'markers', 
-    transforms = list(
-      list(
-        type = 'filter',
-        target = ~Species,
-        operation = '=',
-        value = unique(iris$Species)[1]
-      )
-  )) %>% layout(
-    updatemenus = list(
-      list(
-        type = 'dropdown',
-        active = 0,
-        buttons = list(
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(iris$Species)[1]),
-               label = unique(iris$Species)[1]),
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(iris$Species)[2]),
-               label = unique(iris$Species)[2]),
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(iris$Species)[3]),
-               label = unique(iris$Species)[3])
-        )
-      )
-    )
-  )
-
-p
-```
