@@ -1,4 +1,5 @@
 ---
+title: "Background"
 author: "Jovinka Hartanto"
 date: "7/14/2021"
 site: distill::distill_website
@@ -8,7 +9,6 @@ site: distill::distill_website
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Background
 
 Many of the Abila, Kronos-based employees of GAStech have company cars which are approved for both personal and business use. Those who do not have company cars have the ability to check out company trucks for business use, but these trucks cannot be used for personal business.
 

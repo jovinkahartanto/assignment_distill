@@ -27,7 +27,7 @@ for (p in packages){
 
 ```
 
-## Question (1)
+## Question 1
 Using just the credit and loyalty card data, identify the most popular locations, and when they are popular. What anomalies do you see? What corrections would you recommend to correct these anomalies? Please limit your answer to 8 images and 300 words.
 
 ## Answer
@@ -488,7 +488,7 @@ tm_shape(bgmap) +
          max.value = 255) +
   tm_shape(abila_st_2) +
   tm_lines(col = "red", scale = 1)+
-  tm_shape(gps_path_stopfin[c(3,20,45),]) +
+  tm_shape(gps_path_stopfin[c(3,20,47),]) +
   tm_lines(col = "blue", scale =5, interactive = TRUE) +
  tm_text("Possible_Location", size = 2, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
   
