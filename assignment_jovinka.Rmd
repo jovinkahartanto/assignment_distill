@@ -592,7 +592,7 @@ tm_shape(bgmap) +
          max.value = 255) +
   tm_shape(abila_st_2) +
   tm_lines(col = "red", scale = 1)+
-  tm_shape(gps_path_stopfin[c(50:51,53:55),]) +
+  tm_shape(gps_path_stopfin[c(56:58,53:54),]) +
   tm_lines(col = "blue", scale =5, interactive = TRUE) +
  tm_text("Possible_Location", size = 2, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
   
