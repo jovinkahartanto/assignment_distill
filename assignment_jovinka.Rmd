@@ -365,8 +365,11 @@ tm_shape(bgmap) +
 
 
 
-##Question 2
+## Question 2
+Add the vehicle data to your analysis of the credit and loyalty card data. How does your assessment of the anomalies in question 1 change based on this new data? What discrepancies between vehicle, credit, and loyalty card data do you find? Please limit your answer to 8 images and 500 words.
 
+
+### Answer
 Based on employee location, we can figure out the timing range for cc transaction in Bean There Done That, Brewed Awakenings, Jack's Magical Beans. Even though there are some transaction in Jack's Magical Beans that is not found in location data. 
 
 ```{r finding cc timing, echo = FALSE}
@@ -417,7 +420,82 @@ datatable(cc_data_fixed)
 
 ### Data Discrepancies
 
-1. There are few credit card and loyalty transactions that cannot be tracked in vehicle data. There is a possibility that some o 
+1. There are few credit card and loyalty transactions that cannot be traced from the vehicle data. There is a possibility that employee are not using company vehicle to go to a shop or restaurant.
+
+2. There are some shop that is not shown in the maps below for example Abila Zacharo, Hippokampos, Kalami Kafenion. Therefore, it was challenging to figure out the position of some location. Matching the vehicle data with credit card data will help us to figure out some unknown locations, however there are still some shops that are not detected, one of the example is Daily Dealz.
+
+```{r blank map, echo = FALSE}
+gps_sf_stopfin_unique1 <- gps_sf_stopfin  %>% select(Possible_Location,geometry)%>%unique()%>%arrange(Possible_Location)
+
+gps_sf_stopfin_unique <- gps_sf_stopfin_unique1[-c(221,476,644,1100,1103),]
+
+gps_path_stopfin <- gps_sf_stopfin_unique %>%
+  group_by(Possible_Location) %>%
+  summarize(m_Timestamp = mean(geometry),
+            do_union = FALSE ) %>%
+  st_cast("LINESTRING")
+
+
+Abila_st <- st_read(dsn = "MC2/Geospatial",
+                    layer = "Abila")
+
+P <- npts(Abila_st, by_feature = TRUE)
+abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
+bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1, g = 2, b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(abila_st_2) +
+  tm_lines(col = "red", scale = 1)+
+  tm_lines(col = "blue", scale =5, interactive = TRUE) 
+  
+```
+
+Some location that can be traced by using credit card data are Abila Zacharo, Hippokampos, Kalami Kafenion and few other shops.
+
+
+
+```{r traced place, echo = FALSE}
+gps_sf_stopfin_unique1 <- gps_sf_stopfin  %>% select(Possible_Location,geometry)%>%unique()%>%arrange(Possible_Location)
+
+gps_sf_stopfin_unique <- gps_sf_stopfin_unique1[-c(221,476,644,1100,1103),]
+
+gps_path_stopfin <- gps_sf_stopfin_unique %>%
+  group_by(Possible_Location) %>%
+  summarize(m_Timestamp = mean(geometry),
+            do_union = FALSE ) %>%
+  st_cast("LINESTRING")
+
+
+Abila_st <- st_read(dsn = "MC2/Geospatial",
+                    layer = "Abila")
+
+P <- npts(Abila_st, by_feature = TRUE)
+abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
+bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1, g = 2, b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(abila_st_2) +
+  tm_lines(col = "red", scale = 1)+
+  tm_shape(gps_path_stopfin[c(3,20,45),]) +
+  tm_lines(col = "blue", scale =5, interactive = TRUE) +
+ tm_text("Possible_Location", size = 2, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
+  
+```
+
+3. As mentioned previously there are some mismatch transaction between credit card and loyalty card
+
 
 # QUESTION 3
 Can you infer the owners of each credit card and loyalty card? What is your evidence? Where are there uncertainties in your method? Where are there uncertainties in the data? Please limit your answer to 8 images and 500 words.
@@ -799,31 +877,6 @@ datatable(sf_selected_3)
 
 
 
-
-```{r}
-
-# gps_path_selected <- gps_path %>%
-#   filter(id==28)
-# 
-# 
-# bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
-# 
-# tmap_mode("view")
-# tm_shape(bgmap) +
-#   tm_rgb(bgmap, r = 1, g = 2, b = 3,
-#          alpha = NA,
-#          saturation = 1,
-#          interpolate = TRUE,
-#          max.value = 255) +
-#   tm_shape(abila_st_2) +
-#   tm_lines(col = "red", scale = 1)+
-#   tm_shape(gps_path_selected[1:4,]) +
-#   tm_lines(col = "black", scale =4, interactive = TRUE) +
-#   tm_text("Hour", size = 3, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
-
-
-
-```
 
 ```{r Network Analysis - relationship, include = FALSE}
 

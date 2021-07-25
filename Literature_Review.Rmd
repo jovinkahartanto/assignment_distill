@@ -1,0 +1,16 @@
+---
+title: "Literature Review"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Previous literature analysis of GASTech investigation typically focuses on answering the question without providing an interactive chart or graph. Hence the information that can be seen by the user is only the one that is captured by the writer. By using interactive chart, it will allow users to get more information from the data and graph that is provided. User might also be able to uncover some new patterns or suspicious behavior.
+
+Below are some of the literatures that have been reviewed: 
+
+[Central South University](http://visualdata.wustl.edu/varepository/VAST%20Challenge%202014/challenges/MC2%20-%20Patterns%20of%20Life%20Analysis/entries/Fraunhofer%20IAIS%20and%20City%20University%20London/)
+
+[Fraunhofer IAIS and City University London](http://visualdata.wustl.edu/varepository/VAST%20Challenge%202014/challenges/MC2%20-%20Patterns%20of%20Life%20Analysis/entries/Central%20South%20University/)
+

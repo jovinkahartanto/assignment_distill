@@ -1,5 +1,5 @@
-name: "assignment_distill"
-title: "My Website"
+name: "Vast Mini Challenge 2"
+title: "Vast Mini Challenge 2"
 description: |
   My Website
 output_dir: "_site"
@@ -7,8 +7,8 @@ navbar:
   right:
     - text: "Home"
       href: Background.html
-    - text: "Methodology and Data Preparation"
-      href: Data_Preparation.html
+    - text: "Literature Review"
+      href: Literature_Review.html
     - text: "Answer"
       href: assignment_jovinka.html
 output: distill::distill_article
