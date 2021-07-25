@@ -27,3 +27,9 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+This analysis has been performed before during Vast Challenge 2014. The paper that was reviewed is http://visualdata.wustl.edu/varepository/VAST%20Challenge%202014/challenges/MC2%20-%20Patterns%20of%20Life%20Analysis/entries/Fraunhofer%20IAIS%20and%20City%20University%20London/
+
+This study has a very outstanding analysis, however all of the visualization are not interactive. 
+
+Previous literature analysis of GASTech investigation typically focuses on
