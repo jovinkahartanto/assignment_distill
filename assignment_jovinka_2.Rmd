@@ -1,0 +1,476 @@
+---
+title: "Vast Mini Challenge 2 - Answer2"
+author: "Jovinka Hartanto"
+date: "7/26/2021"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      eval = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.retina = 3)
+```
+
+```{r install packages and load library, include=FALSE}
+packages = c('raster', 'sf', 'st',
+             'tmap','mapview', 'clock', 
+             'tidyverse','plotly','lubridate', 'ggiraph', 'plotly', 
+             'DT', 'patchwork',
+             'tidyverse','ggplot2','data.table','ggraph')
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+
+```
+
+```{r import cc data and loyalty card data, include=FALSE}
+loyalty_data <- read_csv("MC2/loyalty_data.csv")
+
+loyalty_data$timestamp <- date_time_parse(loyalty_data$timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y")
+for(i in 1:nrow(loyalty_data))
+{
+  if(loyalty_data$location[i] %like% "Katerina") 
+  {
+  loyalty_data$location[i] <- str_replace(loyalty_data$location[i],loyalty_data$location[i],"Katerina's Cafe") 
+  }
+}
+
+cc_data <- read_csv("MC2/cc_data.csv")
+
+cc_data$timestamp_date <- date_time_parse(cc_data$timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y")
+cc_data$timestamp <- date_time_parse(cc_data$timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y %H:%M")
+cc_data$time = format(cc_data$timestamp, format = "%H:%M")
+cc_data$hours = get_hour(cc_data$timestamp)
+cc_data$day = weekdays(cc_data$timestamp)
+
+for(i in 1:nrow(cc_data))
+{
+  if(cc_data$location[i] %like% "Katerina") 
+  {
+   cc_data$location[i] <- str_replace(cc_data$location[i],cc_data$location[i],"Katerina's Cafe") 
+  }
+}
+
+```
+
+```{r gps time duration, include= FALSE}
+gps_data <- read_csv("MC2/gps.csv")
+
+gps_data$Timestamp_date <- date_time_parse(gps_data$Timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y")
+
+gps_data$Timestamp <- date_time_parse(gps_data$Timestamp,
+                                zone = "",
+                                format = "%m/%d/%Y %H:%M")
+gps_data$Time <- format(gps_data$Timestamp, format = "%H:%M")
+gps_data$Hour <- get_hour(gps_data$Timestamp)
+
+
+gps_sort <- gps_data[order(gps_data$Timestamp, gps_data$id),]
+
+stop_fin_2 = data.frame()
+
+for (id_1 in unique(gps_sort$id))
+{
+  make_stop = data.frame()
+  gps_id <- gps_sort %>%
+  filter(id==id_1)
+
+  for(i in 1:nrow(gps_id))
+  {
+    if(i < nrow(gps_id))
+    {
+      start <- gps_id$Timestamp[i]
+      end <- gps_id$Timestamp[i+1]
+    } else
+    {
+      start <- gps_id$Timestamp[i]
+      end <- gps_id$Timestamp[i]
+      print(start)
+    }
+    elapsed.time <- start%--%end
+    time_duration <- as.duration(elapsed.time)
+
+    if(time_duration > 300)
+    {
+      make_stop = rbind(make_stop,cbind(gps_id[i,],time_duration,i),cbind(gps_id[i+1,],time_duration,i))
+    }
+
+  }
+
+  stop_fin_2 = rbind(stop_fin_2, make_stop)
+}
+```
+
+
+```{r location point, include = FALSE}
+
+location_point = read_csv("MC2/stop_fin.csv") %>% select(lat,long,Possible_Location)%>% unique()
+stop_fin_2$lat = round(stop_fin_2$lat,5)
+stop_fin_2$long = round(stop_fin_2$long,5)
+
+stop_final = merge(stop_fin_2,location_point, by.x = c("lat","long"), by.y = c("lat","long"), all.x = TRUE)
+
+stop_fin <- stop_final
+
+
+stop_fin_location <- stop_fin[!(stop_fin$Possible_Location %like% 'mice'),]
+
+gps_sf_stopfin <- st_as_sf(stop_fin_location,
+                   coords = c("long","lat"),
+                   crs=4326)
+```
+
+# QUESTION 3
+Can you infer the owners of each credit card and loyalty card? What is your evidence? Where are there uncertainties in your method? Where are there uncertainties in the data? Please limit your answer to 8 images and 500 words.
+
+### Answer
+Yes, we can infer some of the owners of each credit card and loyalty card by cross-checking credit card and vehicle data using map and later join credit card transaction with loyalty card transaction. 
+
+Step by step example to infer the owner of each credit card and loyalty card :
+
+1. To know the owner of credit card with last4ccnum 2540. We can first see what are the credit card transactions for that credit card.
+
+```{r, echo = FALSE}
+cc_data_2540 <- cc_data %>% filter(last4ccnum == 2540) %>% select(timestamp,location,price,last4ccnum)
+
+cc_data_2540$timestamp <- as.character(cc_data_2540$timestamp)
+
+datatable(cc_data_2540)
+
+```
+2. Compare the data with vehicle data. Data frame stop_fin was created to sort the vehicles that stopped for more than 5 minutes in one place. To find the owner of the credit card, try to find those location that is rarely visited by the employees, in this case it is Chostus Hotel. We can see that there are only 3 employees that visited Chostus Hotel within the 2 weeks data provided. From there we can see which date and time suits the credit card transaction data. If there are more than 1 possibility, try to check another location and compare the date and time from credit card transaction data and gps data.
+
+```{r, echo = FALSE}
+
+stop_fin_2540 <- stop_fin %>% filter(Possible_Location == 'Chostus Hotel') %>% select(lat, long, Timestamp, id, Possible_Location)
+
+stop_fin_2540$Timestamp <- as.character(stop_fin_2540$Timestamp)
+
+datatable(stop_fin_2540)
+
+```
+3. Repeat the steps above for another credit card data.
+4. Join the completed credit card data (with owner's id or name) with loyalty data to infer the owner of the loyalty card.
+
+```{r cc and loyalty owner, echo = FALSE}
+
+loyalty_cc_owner = merge(cc_data, loyalty_data, by.x = c("timestamp_date","location","price"), by.y = c("timestamp", "location","price"), all.y = TRUE)
+
+loyalty_cc_owner$timestamp_date <- as.character(loyalty_cc_owner$timestamp_date)
+loyalty_cc_owner$timestamp <-  as.character(loyalty_cc_owner$timestamp)
+
+loyalty_cc_owner <- loyalty_cc_owner %>% select(timestamp_date,location,last4ccnum,loyaltynum,id)
+
+
+datatable(loyalty_cc_owner)
+
+```
+
+5. Check the first name and last name for which id to know the full name of the credit card and loyalty card owner.
+
+
+With this method, not all credit card and loyalty card owner can be known. There are some scenarios that make the transaction data hard to be traced.
+
+1. There is also a possibility that some people going to the shop by using another vehicle (not company vehicle) or for some coffee/breakfast place, some employee might walk there since it is very near from their house
+
+2. Employees did go to the shop by company vehicle, however,  it is not them who paid the bill
+
+3. Not all employees paid the bill using credit card, there might be some people who use their loyalty card, but paid the bill using cash
+
+
+
+# QUESTION 4
+Given the data sources provided, identify potential informal or unofficial relationships among GASTech personnel. Provide evidence for these relationships. Please limit your response to 8 images and 500 words.
+
+### Answer
+
+1. Four security employees, Inga Ferro, Loreto Bodrogi, Hennie Osvaldo, and Minke Mies. 
+They are all securities from two different department site control and perimeter control, however  they repeatedly visited these 5 unknown place. 
+
+```{r Security Meeting, echo = FALSE}
+gps_sf_stopfin_unique1 <- gps_sf_stopfin  %>% select(Possible_Location,geometry)%>%unique()%>%arrange(Possible_Location)
+
+gps_sf_stopfin_unique <- gps_sf_stopfin_unique1[-c(221,476,644,1100,1103),]
+
+gps_path_stopfin <- gps_sf_stopfin_unique %>%
+  group_by(Possible_Location) %>%
+  summarize(m_Timestamp = mean(geometry),
+            do_union = FALSE ) %>%
+  st_cast("LINESTRING")
+
+
+Abila_st <- st_read(dsn = "MC2/Geospatial",
+                    layer = "Abila")
+
+P <- npts(Abila_st, by_feature = TRUE)
+abila_st_2 <- cbind(Abila_st,P) %>% filter(P > 1)
+bgmap <- raster("MC2/Geospatial/MC2-tourist.TIF")
+
+tmap_mode("view")
+tm_shape(bgmap) +
+  tm_rgb(bgmap, r = 1, g = 2, b = 3,
+         alpha = NA,
+         saturation = 1,
+         interpolate = TRUE,
+         max.value = 255) +
+  tm_shape(abila_st_2) +
+  tm_lines(col = "red", scale = 1)+
+  tm_shape(gps_path_stopfin[c(56:58,53:54),]) +
+  tm_lines(col = "blue", scale =5, interactive = TRUE) +
+ tm_text("Possible_Location", size = 2, remove.overlap = TRUE, overwrite.lines = TRUE, just = "top")
+  
+```
+They usually visited the meeting point during lunch time, around 11:30 AM to 12:30 PM. There are also few cases where two or three of them visited these places at the same times.
+
+1. Loretto and Minke visited Meeting Point 1 on 8 January 2014. Loretto visited this place for 11 minutes and Minke visited for 37 minutes
+2. Hennie and Inga visited Meeting Point 4 at the same time on 10 January 2014, the timing they were visiting are 11:28 AM to 12:12 PM and 11:26 AM to 12:16 PM respectively
+3. Inga, Loretto, Hennie visited Meeting Point 6 at the same time period on 15 January 2014
+4. Hennie and Minke visited Meeting Point 5 with an overlapped time period on 16 January 2014
+5. Inga and Loreto visited Meeting Point 1 together on 17 January 2014
+
+The date, time, and duration of these 4 employees visiting the 5 unknown places can be seen in the interactive graph below.
+
+
+```{r dot plot for security-unkown place, echo = FALSE}
+
+stop_fin_security <- stop_fin%>% filter(Possible_Location %in% 	
+c('meeting point 2', 'Meeting Point 1' , 'Meeting Point 4' , 'Meeting Point 5' , 'Meeting Point 6' ))
+
+stop_fin_security$Timestamp_date <- as.character(stop_fin_security$Timestamp_date)
+stop_fin_security$Time <- as.character(stop_fin_security$Time)
+stop_fin_security$time_duration <- as.character(stop_fin_security$time_duration)
+
+sfs_1 <- stop_fin_security %>% filter(id == "13") %>% arrange(Possible_Location)
+sfs_2 <- stop_fin_security %>% filter(id == "15") %>% arrange(Possible_Location)
+sfs_3 <- stop_fin_security %>% filter(id == "21") %>% arrange(Possible_Location)
+sfs_4 <- stop_fin_security %>% filter(id == "24") %>% arrange(Possible_Location)
+ 
+ security_plot <- function(security)
+{security%>%
+  plot_ly(
+    type = 'scatter',
+    x = ~Timestamp_date,
+    y = ~Time,
+    text = ~time_duration,
+    hoverinfo = 'text',
+    hovertemplate = paste('%{x}', '<br>Duration: %{text}<br>', '<br>Time: %{y}<br>' ),
+    mode = 'markers',
+    transforms = list(
+      list(
+        type = 'filter',
+        target = ~Possible_Location,
+        operation = '=',
+        value = unique(security$Possible_Location)[1]
+      )
+  )) %>% layout(
+    updatemenus = list(
+      list(
+        type = 'dropdown',
+        buttons = list(
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(security$Possible_Location)[1]),
+               label = unique(security$Possible_Location)[1]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(security$Possible_Location)[2]),
+               label = unique(security$Possible_Location)[2]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(security$Possible_Location)[3]),
+               label = unique(security$Possible_Location)[3]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(security$Possible_Location)[4]),
+               label = unique(security$Possible_Location)[4]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(security$Possible_Location)[5]),
+               label = unique(security$Possible_Location)[5])
+        )
+      )
+    )
+  )
+
+}
+
+a <- list(
+  text = "Inga Ferro",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+b <- list(
+  text = "Loreto Bodrogi",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+c <- list(
+  text = "Hennie Osvaldo",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+d <- list(
+  text = "Minke Mies",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+
+subplot(security_plot(sfs_1) %>% layout(annotations = a),
+        security_plot(sfs_2) %>% layout(annotations = b), 
+        security_plot(sfs_3) %>% layout(annotations = c),
+        security_plot(sfs_4) %>% layout(annotations = d),shareY = FALSE, shareX =  FALSE, titleX = FALSE) %>% layout(showlegend = FALSE)
+
+```
+
+2. Brand Tempestad and Elsa Orilla
+
+As we can see in the graph below, Brand and Elsa always come to Chostus Hotel during lunch time. They came to the hotel with a similar timing, there is a possibility that there is an informal relationship between them.
+
+```{r Brand and Elsa, echo = FALSE}
+stop_fin_BE <- stop_fin%>% filter(Possible_Location %in% 	
+c('Chostus Hotel'))
+
+stop_fin_BE$time_duration <- as.character(stop_fin_BE$time_duration)
+
+sfb_1 <- stop_fin_BE %>% filter(id == 7)
+sfb_2 <- stop_fin_BE %>% filter(id == 33)
+
+
+sfb_1_plot <- sfb_1 %>%plot_ly(
+    type = 'scatter',
+    x = ~Timestamp_date,
+    y = ~Time,
+    text = ~time_duration,
+    hoverinfo = 'text',
+    hovertemplate = paste('%{x}', '<br>Duration: %{text}<br>', '<br>Time: %{y}<br>' ),
+    mode = 'markers')
+
+sfb_2_plot <- sfb_2 %>%plot_ly(
+    type = 'scatter',
+    x = ~Timestamp_date,
+    y = ~Time,
+    text = ~time_duration,
+    hoverinfo = 'text',
+    hovertemplate = paste('%{x}', '<br>Duration: %{text}<br>', '<br>Time: %{y}<br>' ),
+    mode = 'markers')
+
+a <- list(
+  text = "Elsa Orilla",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+b <- list(
+  text = "Brand Tempestad",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+
+subplot(sfb_1_plot %>% layout(annotations = a),sfb_2_plot %>% layout(annotations = b)) %>% layout(showlegend = FALSE)
+
+```
+
+
+##Question 5
+Do you see evidence of suspicious activity? Identify 1- 10 locations where you believe the suspicious activity is occurring, and why Please limit your response to 10 images and 500 words.
+
+### Answer
+
+1. Meeting Point 1,2,4,5,6
+As mentioned in Question 4 there are 5 unknown places that repeatedly visited by 4 employees
+  
+2. GASTech Technologies
+Data table below shows that car id 1, which is Nils Calixto visit GASTech at night, later than 8 PM. There are days that Nils visited GASTech at after 23:00 PM, which is very suspicious.It is also unusual for Truck 104 come to GASTech at 8 PM
+
+```{r suspicious visit to gastech, echo = FALSE}
+
+sf_selected = stop_fin %>% select(id, Timestamp_date, Hour, Possible_Location) %>%filter(Possible_Location == 'GASTech') %>% filter(Hour %in% c(0:5,20:23)) 
+sf_selected$Timestamp_date <- as.character(sf_selected$Timestamp_date)
+datatable(sf_selected%>%arrange(Timestamp_date))
+
+
+
+```
+
+3. House of Lars Azada
+Unusual pattern also happened on 10 January 2014 at Lars Azada's House. There are some employees visited his house between 18:00 to 1:00 AM the next day, which most of them are from IT and Engineering Department. All IT employee are there except Sven Flecha.
+
+Nils Calixto also visited Lars' House on 7 January 2014 at 3 AM, which is very suspicious. 
+
+
+```{r Lars Azada House, echo = FALSE}
+
+sf_selected_2 = stop_fin %>% select(id, Timestamp_date, Hour, Possible_Location) %>%filter(Possible_Location == 'House 2') %>% filter(id != 2)
+
+sf_selected_2$Timestamp_date <- as.character(sf_selected_2$Timestamp_date)
+
+datatable(sf_selected_2)
+
+
+```
+4. Chostus Hotel
+
+There are three employees who visited Chostus Hotel, which are Sten Sanjorge Jr. (id:31), Brand Tempestad (id:33), and Elsa Orilla (id:7). However as explained in question 4, only Brand and Elsa are visited the hotel together during lunch time on 8,10,14, and 17 January 2014. 
+
+Meanwhile, the remaining visits belongs to Sten Sanjorge Jr s, who stayed in the hotel from 17 January 2014 to 19 January 2014. It can be seen from the time duration that the GPS tracked that Sten's car syp for almost 19 hours on 17 January, and 23 hours on 18 January 2014. 
+
+```{r Chostus Hotel, echo = FALSE}
+
+sf_selected_3 = stop_fin %>% select(id, Timestamp_date, Hour,time_duration, Possible_Location) %>%filter(Possible_Location == 'Chostus Hotel')
+
+sf_selected_3$time_duration <- as.character(sf_selected_3$time_duration)
+sf_selected_3$Timestamp_date <- as.character(sf_selected_3$Timestamp_date)
+
+datatable(sf_selected_3)
+
+
+```
+

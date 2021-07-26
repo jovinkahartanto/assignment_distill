@@ -11,4 +11,6 @@ navbar:
       href: Literature_Review.html
     - text: "Answer"
       href: assignment_jovinka.html
+    - text: "Answer part 2"
+      href: assignment_jovinka_2.html
 output: distill::distill_article
